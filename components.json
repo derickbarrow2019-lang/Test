@@ -1,0 +1,252 @@
+import { useState } from 'react';
+import { useStore } from '@/store/useStore';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Package, User, Truck, Eye, EyeOff, Home } from 'lucide-react';
+
+export function LoginPage() {
+  const { login, setCurrentPage } = useStore();
+  const [activeTab, setActiveTab] = useState('customer');
+  const [showPassword, setShowPassword] = useState(false);
+  const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
+  
+  // Customer login form
+  const [customerEmail, setCustomerEmail] = useState('');
+  const [customerPassword, setCustomerPassword] = useState('');
+  
+  // Driver login form
+  const [driverEmail, setDriverEmail] = useState('');
+  const [driverPassword, setDriverPassword] = useState('');
+
+  const handleCustomerLogin = (e: React.FormEvent) => {
+    e.preventDefault();
+    setError('');
+    setSuccess('');
+    
+    const result = login(customerEmail, customerPassword, 'customer');
+    if (result.success) {
+      setSuccess(result.message);
+      setTimeout(() => setCurrentPage('home'), 500);
+    } else {
+      setError(result.message);
+    }
+  };
+
+  const handleDriverLogin = (e: React.FormEvent) => {
+    e.preventDefault();
+    setError('');
+    setSuccess('');
+    
+    const result = login(driverEmail, driverPassword, 'driver');
+    if (result.success) {
+      setSuccess(result.message);
+      setTimeout(() => setCurrentPage('admin'), 500);
+    } else {
+      setError(result.message);
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-[#FAFAFA] flex flex-col">
+      {/* Header */}
+      <header className="bg-white border-b border-gray-100">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between h-16">
+            <div className="flex items-center gap-2">
+              <div className="w-8 h-8 rounded-lg gradient-green flex items-center justify-center">
+                <Package className="w-5 h-5 text-white" />
+              </div>
+              <span className="text-xl font-bold text-[#1A1A1A]" style={{ fontFamily: 'Poppins, sans-serif' }}>
+                SwiftDrop UAE
+              </span>
+            </div>
+            <Button variant="ghost" size="sm" onClick={() => setCurrentPage('home')}>
+              <Home className="w-4 h-4 mr-2" />
+              Home
+            </Button>
+          </div>
+        </div>
+      </header>
+
+      {/* Login Content */}
+      <div className="flex-1 flex items-center justify-center p-4">
+        <div className="w-full max-w-md">
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+            <TabsList className="grid w-full grid-cols-2 mb-6">
+              <TabsTrigger value="customer" className="flex items-center gap-2">
+                <User className="w-4 h-4" />
+                Customer
+              </TabsTrigger>
+              <TabsTrigger value="driver" className="flex items-center gap-2">
+                <Truck className="w-4 h-4" />
+                Driver
+              </TabsTrigger>
+            </TabsList>
+
+            {/* Customer Login */}
+            <TabsContent value="customer">
+              <Card className="shadow-card">
+                <CardHeader className="text-center">
+                  <div className="w-16 h-16 rounded-full bg-[#E6F9F3] flex items-center justify-center mx-auto mb-4">
+                    <User className="w-8 h-8 text-[#00D09C]" />
+                  </div>
+                  <CardTitle className="text-2xl" style={{ fontFamily: 'Poppins, sans-serif' }}>
+                    Customer Login
+                  </CardTitle>
+                  <p className="text-sm text-[#666666]">
+                    Sign in to book deliveries across the UAE
+                  </p>
+                </CardHeader>
+                <CardContent>
+                  <form onSubmit={handleCustomerLogin} className="space-y-4">
+                    <div>
+                      <Label htmlFor="customer-email">Email</Label>
+                      <Input
+                        id="customer-email"
+                        type="email"
+                        placeholder="your@email.com"
+                        value={customerEmail}
+                        onChange={(e) => setCustomerEmail(e.target.value)}
+                        required
+                        className="mt-1"
+                      />
+                    </div>
+
+                    <div>
+                      <Label htmlFor="customer-password">Password</Label>
+                      <div className="relative mt-1">
+                        <Input
+                          id="customer-password"
+                          type={showPassword ? 'text' : 'password'}
+                          placeholder="Enter your password"
+                          value={customerPassword}
+                          onChange={(e) => setCustomerPassword(e.target.value)}
+                          required
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setShowPassword(!showPassword)}
+                          className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                        >
+                          {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                        </button>
+                      </div>
+                    </div>
+
+                    {error && activeTab === 'customer' && (
+                      <div className="p-3 bg-red-50 text-red-600 text-sm rounded-lg">
+                        {error}
+                      </div>
+                    )}
+
+                    {success && activeTab === 'customer' && (
+                      <div className="p-3 bg-emerald-50 text-emerald-600 text-sm rounded-lg">
+                        {success}
+                      </div>
+                    )}
+
+                    <Button
+                      type="submit"
+                      className="w-full gradient-green text-white hover:opacity-90"
+                    >
+                      Sign In
+                    </Button>
+                  </form>
+
+                  <div className="mt-6 text-center">
+                    <p className="text-sm text-[#666666]">
+                      Don't have an account?{' '}
+                      <button
+                        onClick={() => setCurrentPage('register')}
+                        className="text-[#00D09C] font-medium hover:underline"
+                      >
+                        Register
+                      </button>
+                    </p>
+                  </div>
+                </CardContent>
+              </Card>
+            </TabsContent>
+
+            {/* Driver Login */}
+            <TabsContent value="driver">
+              <Card className="shadow-card">
+                <CardHeader className="text-center">
+                  <div className="w-16 h-16 rounded-full bg-[#E6F9F3] flex items-center justify-center mx-auto mb-4">
+                    <Truck className="w-8 h-8 text-[#00D09C]" />
+                  </div>
+                  <CardTitle className="text-2xl" style={{ fontFamily: 'Poppins, sans-serif' }}>
+                    Driver Login
+                  </CardTitle>
+                  <p className="text-sm text-[#666666]">
+                    Sign in to manage deliveries across the UAE
+                  </p>
+                </CardHeader>
+                <CardContent>
+                  <form onSubmit={handleDriverLogin} className="space-y-4">
+                    <div>
+                      <Label htmlFor="driver-email">Email</Label>
+                      <Input
+                        id="driver-email"
+                        type="email"
+                        placeholder="driver@email.com"
+                        value={driverEmail}
+                        onChange={(e) => setDriverEmail(e.target.value)}
+                        required
+                        className="mt-1"
+                      />
+                    </div>
+
+                    <div>
+                      <Label htmlFor="driver-password">Password</Label>
+                      <div className="relative mt-1">
+                        <Input
+                          id="driver-password"
+                          type={showPassword ? 'text' : 'password'}
+                          placeholder="Enter your password"
+                          value={driverPassword}
+                          onChange={(e) => setDriverPassword(e.target.value)}
+                          required
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setShowPassword(!showPassword)}
+                          className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                        >
+                          {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                        </button>
+                      </div>
+                    </div>
+
+                    {error && activeTab === 'driver' && (
+                      <div className="p-3 bg-red-50 text-red-600 text-sm rounded-lg">
+                        {error}
+                      </div>
+                    )}
+
+                    {success && activeTab === 'driver' && (
+                      <div className="p-3 bg-emerald-50 text-emerald-600 text-sm rounded-lg">
+                        {success}
+                      </div>
+                    )}
+
+                    <Button
+                      type="submit"
+                      className="w-full gradient-green text-white hover:opacity-90"
+                    >
+                      Sign In
+                    </Button>
+                  </form>
+                </CardContent>
+              </Card>
+            </TabsContent>
+          </Tabs>
+        </div>
+      </div>
+    </div>
+  );
+}
